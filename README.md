@@ -28,21 +28,24 @@ FIREWORKS_API_KEY=...
 HF_TOKEN=...
 ```
 
-Codex uses the local Codex login when `CODEX_FORCE_AUTH_JSON=YES` (the default in `job.yaml`). The checked-in job runs all ten tasks once with the oracle plus these three models:
-
-- Claude Code with `anthropic/claude-opus-4-8`
-- Codex with `openai/gpt-5.6-sol`
-- OpenCode with Fireworks `openai/accounts/fireworks/models/glm-5p2`
-
-The task and verifier policies are `no-network`. Harbor merges only each agent's model-provider hostname into the agent-phase allowlist; arbitrary internet access remains blocked, and the verifier stays fully offline. Agents receive a 3,600-second wall-clock timeout, which is an operational setting rather than a timeout specified by the paper. Transient setup `NetworkConnectionError` failures are retried twice, while scientific failures are not retried. The job does not set an agent turn limit, output-token limit, reasoning-effort override, or agent version pin.
+The checked-in `job.yaml` runs the BioMysteryBench plugin comparison described
+below. Agents receive a 3,600-second wall-clock timeout. Transient setup
+`NetworkConnectionError` failures are retried twice, while scientific failures
+are not retried. The job does not set an agent turn limit, output-token limit,
+reasoning-effort override, or agent version pin.
 
 ```bash
 uv run --env-file .env harbor run -c job.yaml -y -q
 ```
 
-No job name is specified, so Harbor uses its default timestamp. Each trial retains the agent's `/app` workspace except the staged input data. The verifier grades `/app/result.json`; the downloaded workspace, verifier output, rewards, agent logs, and ATIF trajectory remain in the normal trial directory under `jobs/`.
+No job name is specified, so Harbor uses its default timestamp. Each trial retains
+the agent's `/app` workspace except the staged input data. The downloaded
+workspace, verifier output, rewards, agent logs, and ATIF trajectory remain in the
+normal trial directory under `jobs/`.
 
-The verified Daytona job `2026-07-31__16-30-32` completed all 40 trials (ten tasks across the oracle and three model agents) in 49 minutes with zero errors or retries. All 40 workspaces retained `result.json`, all 40 artifact manifests completed successfully, and all 30 model trials retained ATIF trajectories. Claude Opus 4.8, Codex GPT-5.6, and Fireworks GLM-5p2 each passed `wf_selection`.
+The earlier GeneBench-Pro Daytona job `2026-07-31__16-30-32` completed all 40
+trials across the oracle, Claude Opus 4.8, Codex GPT-5.6, and Fireworks GLM-5p2
+with zero errors or retries. That retained run is not the current `job.yaml`.
 
 ## Review analysis
 
@@ -90,6 +93,42 @@ Bowtie2, BLAST, samtools, bcftools, bedtools, seqtk, FastQC, Nextflow, Java 21,
 Node.js, the stated R/Bioconductor packages, a conda Python 3.11 scientific
 environment, and a uv-managed Python 3.12 environment. Agent network access is
 restricted to the benchmark's package and bioinformatics-domain allowlist.
+
+### Bio Research plugin comparison
+
+`job.yaml` runs `hb002` and `hb010` once with the oracle, an ordinary Claude Code
+Opus 4.8 control, and a separately labeled Opus 4.8 treatment using Anthropic's
+Bio Research plugin. The treatment is implemented by
+`biomistery_bench.harness:BioResearchClaudeCode`; it does not change the task
+prompt. Remove that agent entry from `job.yaml` to disable the treatment.
+
+The plugin is vendored from `anthropics/knowledge-work-plugins` at commit
+`ace462f156540bf75fb8ea9427d343a38c490015`. The harness stages it in the trial,
+removes only the upstream Benchling placeholder with an empty URL, and starts
+Claude Code with `--plugin-dir`. Its ten configured MCP endpoint hosts are added
+only to the treatment's agent-phase allowlist. Five redundant FTP, documentation,
+and alternate package mirrors are omitted from generated task allowlists so the
+merged treatment policy fits Daytona's 20-domain limit while retaining the
+corresponding primary hosts. The model's
+`CLAUDE_CODE_OAUTH_TOKEN` does not authenticate those separate MCP services;
+connector-specific OAuth state must be supplied independently when it becomes
+available. Unauthenticated connectors may appear disconnected without preventing
+the skills and remaining connectors from loading.
+
+Harbor reports the treatment under `claude-code-bio-research`, so its official
+task rewards, runtime, token use, and tool calls remain separate from the
+`claude-code` control. Each treatment trial also retains
+`/logs/artifacts/bio-research-plugin.json` with the plugin revision, digest,
+skills, and MCP server names.
+
+The verified Daytona job `2026-08-01__11-37-56` completed all six trials in
+11 minutes with zero errors or retries. Oracle, control Opus, and plugin Opus all
+scored `1.0` on both tasks, so the observed score lift was zero. Neither treatment
+trajectory invoked a Bio Research skill or MCP tool. Across the two model trials,
+the control used 614 summed agent-seconds and reported $2.01 of model cost; the
+treatment used 772 seconds and reported $3.38. This is a one-attempt smoke
+comparison on two ceiling-scoring tasks, not an estimate of broader benchmark
+impact.
 
 Harbor 0.20 does not provide a credential-isolated Daytona setup hook that runs
 before an agent without exposing its environment. Consequently, downloading

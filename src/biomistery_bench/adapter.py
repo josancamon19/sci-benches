@@ -20,22 +20,29 @@ DEFAULT_MAX_ARCHIVE_BYTES = 1_000_000_000
 TEMPLATE_DIR = Path(__file__).parent / "task-template"
 
 HARNESS_ALLOWED_DOMAINS = (
-    "bioconda.github.io",
     "bioconductor.org",
     "conda.anaconda.org",
     "cran.r-project.org",
-    "cran.rstudio.com",
     "ebi.ac.uk",
     "ensembl.org",
-    "ftp.ebi.ac.uk",
-    "ftp.ensembl.org",
-    "ftp.ncbi.nlm.nih.gov",
     "hgdownload.soe.ucsc.edu",
     "ncbi.nlm.nih.gov",
     "pypi.org",
     "reactome.org",
     "repo.anaconda.com",
     "uniprot.org",
+)
+
+# These mirrors duplicate retained package or bioinformatics hosts. Excluding them
+# leaves room for job-specific MCP endpoints under Daytona's 20-domain limit.
+REDUNDANT_ALLOWED_DOMAINS = frozenset(
+    {
+        "bioconda.github.io",
+        "cran.rstudio.com",
+        "ftp.ebi.ac.uk",
+        "ftp.ensembl.org",
+        "ftp.ncbi.nlm.nih.gov",
+    }
 )
 
 
@@ -236,7 +243,13 @@ def discover_problems(source: DatasetSource) -> list[Problem]:
                 task_id=task_id,
                 question=question,
                 answer_rubric=answer_rubric,
-                allowed_domains=tuple(dict.fromkeys((*metadata_domains, *HARNESS_ALLOWED_DOMAINS))),
+                allowed_domains=tuple(
+                    dict.fromkeys(
+                        domain
+                        for domain in (*metadata_domains, *HARNESS_ALLOWED_DOMAINS)
+                        if domain not in REDUNDANT_ALLOWED_DOMAINS
+                    )
+                ),
                 human_solvable=human_solvable_text == "yes",
             )
         )

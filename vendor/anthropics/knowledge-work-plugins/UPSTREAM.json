@@ -1,0 +1,6 @@
+{
+  "repository": "https://github.com/anthropics/knowledge-work-plugins",
+  "commit": "ace462f156540bf75fb8ea9427d343a38c490015",
+  "plugin": "bio-research",
+  "version": "1.2.0"
+}
