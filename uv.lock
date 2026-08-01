@@ -766,6 +766,7 @@ dependencies = [
     { name = "huggingface-hub" },
     { name = "jinja2" },
     { name = "pypdf" },
+    { name = "python-dotenv" },
 ]
 
 [package.dev-dependencies]
@@ -780,6 +781,7 @@ requires-dist = [
     { name = "huggingface-hub", specifier = "==1.26.0" },
     { name = "jinja2", specifier = "==3.1.6" },
     { name = "pypdf", specifier = "==6.14.2" },
+    { name = "python-dotenv", specifier = "==1.2.2" },
 ]
 
 [package.metadata.requires-dev]

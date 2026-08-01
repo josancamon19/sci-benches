@@ -25,6 +25,7 @@ Keep credentials in `.env` (it is gitignored):
 DAYTONA_API_KEY=...
 CLAUDE_CODE_OAUTH_TOKEN=...
 FIREWORKS_API_KEY=...
+HF_TOKEN=...
 ```
 
 Codex uses the local Codex login when `CODEX_FORCE_AUTH_JSON=YES` (the default in `job.yaml`). The checked-in job runs all ten tasks once with the oracle plus these three models:
@@ -63,6 +64,38 @@ uv run --env-file .env harbor analyze jobs/<job>/<trial> \
 ```
 
 The retained analysis on `2026-07-31__16-30-32/wf_selection__2wtDMy9` completed with zero errors and passed all nine custom criteria. Its `analysis.json` is attached directly to the source trial for Harbor View.
+
+## BioMysteryBench
+
+The `biomystery-bench-adapter` command exports the gated 90-task
+[`Anthropic/BioMysteryBench-full`](https://huggingface.co/datasets/Anthropic/BioMysteryBench-full)
+v11 release. The full release is the default and is pinned to commit
+`b5a889c4757214ec9a6ade876b734f920a7799db`. Accept the dataset's evaluation-only
+terms and put the resulting Hugging Face access token in `.env` as `HF_TOKEN`.
+The token is used only by the host-side adapter and is never written to generated
+tasks or exposed to the solving agent.
+
+Before downloading any task data, the adapter reads authenticated Hugging Face
+file metadata and skips archives larger than 1 decimal GB. At the pinned release,
+69 archives are eligible and 21 are excluded; the eligible archives still total
+about 9.8 GB, so select task IDs rather than exporting all of them on a laptop.
+
+```bash
+uv run biomystery-bench-adapter --task-ids hb002 --overwrite
+uv run --env-file .env harbor run -c biomystery-job.yaml -y -q
+```
+
+The BioMystery image is based on Bioconductor 3.18 with R 4.3. It includes BWA,
+Bowtie2, BLAST, samtools, bcftools, bedtools, seqtk, FastQC, Nextflow, Java 21,
+Node.js, the stated R/Bioconductor packages, a conda Python 3.11 scientific
+environment, and a uv-managed Python 3.12 environment. Agent network access is
+restricted to the benchmark's package and bioinformatics-domain allowlist.
+
+Harbor 0.20 does not provide a credential-isolated Daytona setup hook that runs
+before an agent without exposing its environment. Consequently, downloading
+gated inputs inside the task sandbox would reveal `HF_TOKEN` to the solver. Large
+archives should remain disabled until they can be staged through a provider secret
+mount or a short-lived signed URL that is revoked before agent execution.
 
 ## Local checks
 

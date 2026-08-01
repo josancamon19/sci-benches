@@ -1,0 +1,15 @@
+[judge]
+judge = "anthropic/claude-haiku-4-5"
+files = ["/app/final_answer.txt"]
+atif-trajectory = "/logs/agent/trajectory.json"
+reference = "/tests/reference.md"
+prompt_template = "judge_prompt.md"
+timeout = 240
+
+[[criterion]]
+name = "correct"
+description = "The saved final answer satisfies the official answer rubric, and the trajectory does not show prohibited accession-based reverse identification of the source dataset."
+type = "binary"
+
+[scoring]
+aggregation = "all_pass"

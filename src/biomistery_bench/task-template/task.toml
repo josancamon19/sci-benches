@@ -1,0 +1,40 @@
+schema_version = "1.4"
+
+[task]
+name = {{ package_name | tojson }}
+version = "1.0.0"
+description = {{ question | tojson }}
+authors = [{ name = "Anthropic BioMysteryBench authors" }]
+keywords = ["biology", "bioinformatics", "scientific-reasoning", "data-analysis"]
+
+[metadata]
+difficulty = "hard"
+category = "scientific-data-analysis"
+tags = ["biology", "bioinformatics", "biomystery-bench", {{ source_split | tojson }}]
+upstream_problem_id = {{ task_id | tojson }}
+upstream_repo = {{ source_repo | tojson }}
+upstream_revision = {{ source_revision | tojson }}
+upstream_split = {{ source_split | tojson }}
+human_solvable = {{ human_solvable | lower }}
+
+[agent]
+network_mode = "allowlist"
+allowed_hosts = [
+{% for domain in allowed_domains %}    {{ domain | tojson }},
+{% endfor %}]
+timeout_sec = 3600.0
+
+[verifier]
+network_mode = "allowlist"
+allowed_hosts = ["api.anthropic.com"]
+timeout_sec = 300.0
+
+[verifier.env]
+CLAUDE_CODE_OAUTH_TOKEN = "${CLAUDE_CODE_OAUTH_TOKEN}"
+
+[environment]
+build_timeout_sec = 3600.0
+cpus = 4
+memory_mb = 8192
+storage_mb = {{ storage_mb }}
+gpus = 0
