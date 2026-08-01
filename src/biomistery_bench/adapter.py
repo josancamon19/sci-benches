@@ -16,7 +16,6 @@ from huggingface_hub import HfApi, hf_hub_download
 from huggingface_hub.errors import GatedRepoError
 from jinja2 import Environment, StrictUndefined
 
-DEFAULT_DATASET = "full"
 DEFAULT_MAX_ARCHIVE_BYTES = 1_000_000_000
 TEMPLATE_DIR = Path(__file__).parent / "task-template"
 
@@ -49,22 +48,13 @@ class DatasetRelease:
     aggregate_archive: bool
 
 
-RELEASES = {
-    "preview": DatasetRelease(
-        name="preview",
-        repo_id="Anthropic/BioMysteryBench-preview",
-        revision="51c9024021b8989a0cb06ae623b02f90d14c2da3",
-        expected_problem_count=5,
-        aggregate_archive=True,
-    ),
-    "full": DatasetRelease(
-        name="full",
-        repo_id="Anthropic/BioMysteryBench-full",
-        revision="b5a889c4757214ec9a6ade876b734f920a7799db",
-        expected_problem_count=90,
-        aggregate_archive=False,
-    ),
-}
+DATASET_RELEASE = DatasetRelease(
+    name="full",
+    repo_id="Anthropic/BioMysteryBench-full",
+    revision="b5a889c4757214ec9a6ade876b734f920a7799db",
+    expected_problem_count=90,
+    aggregate_archive=False,
+)
 
 _REQUIRED_COLUMNS = {
     "id",

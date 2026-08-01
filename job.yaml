@@ -31,22 +31,24 @@ agents:
       CLAUDE_CODE_OAUTH_TOKEN: "${CLAUDE_CODE_OAUTH_TOKEN}"
       CLAUDE_FORCE_OAUTH: "${CLAUDE_FORCE_OAUTH:-YES}"
 
-  - name: codex
-    model_name: openai/gpt-5.6-sol
-    extra_allowed_hosts:
-      - chatgpt.com
-    env:
-      CODEX_FORCE_AUTH_JSON: "${CODEX_FORCE_AUTH_JSON:-YES}"
+  # - name: codex
+  #   model_name: openai/gpt-5.6-sol
+  #   extra_allowed_hosts:
+  #     - chatgpt.com
+  #   env:
+  #     CODEX_FORCE_AUTH_JSON: "${CODEX_FORCE_AUTH_JSON:-YES}"
 
-  - name: opencode
-    model_name: openai/accounts/fireworks/models/glm-5p2
-    extra_allowed_hosts:
-      - api.fireworks.ai
-    env:
-      OPENAI_API_KEY: "${FIREWORKS_API_KEY}"
-      OPENAI_BASE_URL: https://api.fireworks.ai/inference/v1
+  # - name: opencode
+  #   model_name: openai/accounts/fireworks/models/glm-5p2
+  #   extra_allowed_hosts:
+  #     - api.fireworks.ai
+  #   env:
+  #     OPENAI_API_KEY: "${FIREWORKS_API_KEY}"
+  #     OPENAI_BASE_URL: https://api.fireworks.ai/inference/v1
 
 datasets:
-  - path: datasets/genebench-pro
-    # task_names:
-    #   - wf_selection
+  # - path: datasets/genebench-pro
+  - path: datasets/biomystery-bench
+    task_names:
+      - hb002
+      - hb010

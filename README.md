@@ -82,7 +82,7 @@ about 9.8 GB, so select task IDs rather than exporting all of them on a laptop.
 
 ```bash
 uv run biomystery-bench-adapter --task-ids hb002 --overwrite
-uv run --env-file .env harbor run -c biomystery-job.yaml -y -q
+uv run --env-file .env harbor run -c job.yaml -y -q
 ```
 
 The BioMystery image is based on Bioconductor 3.18 with R 4.3. It includes BWA,

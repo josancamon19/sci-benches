@@ -8,10 +8,9 @@ import pytest
 from harbor.models.task.config import TaskConfig
 
 from biomistery_bench.adapter import (
-    DEFAULT_DATASET,
+    DATASET_RELEASE,
     DEFAULT_MAX_ARCHIVE_BYTES,
     HARNESS_ALLOWED_DOMAINS,
-    RELEASES,
     BioMysteryBenchAdapter,
     DatasetSource,
 )
@@ -48,28 +47,29 @@ def _write_metadata(path: Path, count: int) -> list[str]:
 
 
 @pytest.fixture
-def preview_source(tmp_path: Path) -> Path:
-    source_dir = tmp_path / "preview"
-    source_dir.mkdir()
+def full_source(tmp_path: Path) -> Path:
+    source_dir = tmp_path / "full"
+    (source_dir / "data").mkdir(parents=True)
     task_ids = _write_metadata(
-        source_dir / "problems.csv", RELEASES["preview"].expected_problem_count
+        source_dir / "problems.csv", DATASET_RELEASE.expected_problem_count
     )
-    with zipfile.ZipFile(source_dir / "data.zip", "w") as archive:
-        for task_id in task_ids:
-            archive.writestr(f"{task_id}/reads/{task_id}.fasta", ">record\nACGT\n")
+    for task_id in task_ids[:2]:
+        with zipfile.ZipFile(source_dir / "data" / f"{task_id}.zip", "w") as archive:
+            archive.writestr(f"reads/{task_id}.fasta", ">record\nACGT\n")
     return source_dir
 
 
-def test_preview_adapter_generates_valid_isolated_tasks(
-    preview_source: Path, tmp_path: Path
+def test_adapter_generates_valid_isolated_tasks(
+    full_source: Path, tmp_path: Path
 ) -> None:
     output_dir = tmp_path / "tasks"
     generated = BioMysteryBenchAdapter(
-        source=DatasetSource(RELEASES["preview"], source_dir=preview_source),
+        source=DatasetSource(DATASET_RELEASE, source_dir=full_source),
         output_dir=output_dir,
+        task_ids=["hb001", "hb002"],
     ).run()
 
-    assert len(generated) == 5
+    assert len(generated) == 2
     for task_dir in generated:
         config = TaskConfig.model_validate_toml(
             (task_dir / "task.toml").read_text(encoding="utf-8")
@@ -118,13 +118,13 @@ def test_preview_adapter_generates_valid_isolated_tasks(
 def test_full_adapter_downloads_only_selected_archive(tmp_path: Path) -> None:
     source_dir = tmp_path / "full"
     (source_dir / "data").mkdir(parents=True)
-    task_ids = _write_metadata(source_dir / "problems.csv", RELEASES["full"].expected_problem_count)
+    task_ids = _write_metadata(source_dir / "problems.csv", DATASET_RELEASE.expected_problem_count)
     selected = task_ids[8]
     with zipfile.ZipFile(source_dir / "data" / f"{selected}.zip", "w") as archive:
         archive.writestr("sample.txt", "data\n")
 
     generated = BioMysteryBenchAdapter(
-        source=DatasetSource(RELEASES["full"], source_dir=source_dir),
+        source=DatasetSource(DATASET_RELEASE, source_dir=source_dir),
         output_dir=tmp_path / "tasks",
         task_ids=[selected],
     ).run()
@@ -138,7 +138,7 @@ def test_adapter_skips_archives_over_one_gb_before_opening_them(
 ) -> None:
     source_dir = tmp_path / "full"
     (source_dir / "data").mkdir(parents=True)
-    task_ids = _write_metadata(source_dir / "problems.csv", RELEASES["full"].expected_problem_count)
+    task_ids = _write_metadata(source_dir / "problems.csv", DATASET_RELEASE.expected_problem_count)
     eligible, oversized = task_ids[:2]
     with zipfile.ZipFile(source_dir / "data" / f"{eligible}.zip", "w") as archive:
         archive.writestr("sample.txt", "data\n")
@@ -146,7 +146,7 @@ def test_adapter_skips_archives_over_one_gb_before_opening_them(
         archive.truncate(DEFAULT_MAX_ARCHIVE_BYTES + 1)
 
     generated = BioMysteryBenchAdapter(
-        source=DatasetSource(RELEASES["full"], source_dir=source_dir),
+        source=DatasetSource(DATASET_RELEASE, source_dir=source_dir),
         output_dir=tmp_path / "tasks",
         task_ids=[eligible, oversized],
     ).run()
@@ -156,10 +156,11 @@ def test_adapter_skips_archives_over_one_gb_before_opening_them(
     assert "Skipping 1 task archive(s)" in caplog.text
 
 
-def test_cli_defaults_to_full_release_and_one_gb_limit() -> None:
+def test_cli_defaults_to_biomystery_bench_and_one_gb_limit() -> None:
     args = build_parser().parse_args([])
 
-    assert args.dataset == DEFAULT_DATASET == "full"
+    assert args.output_dir == Path("datasets/biomystery-bench")
+    assert not hasattr(args, "dataset")
     assert args.max_archive_size_gb == 1.0
 
 
@@ -190,13 +191,13 @@ def test_dockerfile_contains_published_biomystery_toolchain() -> None:
         assert expected in dockerfile
 
 
-def test_adapter_rejects_archive_path_traversal(preview_source: Path, tmp_path: Path) -> None:
-    with zipfile.ZipFile(preview_source / "data.zip", "a") as archive:
-        archive.writestr("hb001/../../escape.txt", "unsafe")
+def test_adapter_rejects_archive_path_traversal(full_source: Path, tmp_path: Path) -> None:
+    with zipfile.ZipFile(full_source / "data" / "hb001.zip", "a") as archive:
+        archive.writestr("../../escape.txt", "unsafe")
 
     with pytest.raises(ValueError, match="Unsafe archive member"):
         BioMysteryBenchAdapter(
-            source=DatasetSource(RELEASES["preview"], source_dir=preview_source),
+            source=DatasetSource(DATASET_RELEASE, source_dir=full_source),
             output_dir=tmp_path / "tasks",
             task_ids=["hb001"],
         ).run()

@@ -8,9 +8,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from .adapter import (
-    DEFAULT_DATASET,
+    DATASET_RELEASE,
     DEFAULT_MAX_ARCHIVE_BYTES,
-    RELEASES,
     BioMysteryBenchAdapter,
     DatasetSource,
 )
@@ -21,16 +20,10 @@ def build_parser() -> argparse.ArgumentParser:
         description="Export Anthropic BioMysteryBench into Harbor task format."
     )
     parser.add_argument(
-        "--dataset",
-        choices=sorted(RELEASES),
-        default=DEFAULT_DATASET,
-        help="Export the gated 90-task full release (default) or five-task preview.",
-    )
-    parser.add_argument(
         "--output-dir",
         type=Path,
-        default=None,
-        help="Generated Harbor dataset directory (default depends on --dataset).",
+        default=Path("datasets/biomystery-bench"),
+        help="Generated Harbor dataset directory (default: datasets/biomystery-bench).",
     )
     parser.add_argument("--limit", type=int, default=None, help="Generate the first N tasks.")
     parser.add_argument(
@@ -47,7 +40,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--revision",
         default=None,
-        help="Override the pinned Hugging Face commit for the chosen release.",
+        help="Override the pinned Hugging Face commit.",
     )
     parser.add_argument(
         "--cache-dir",
@@ -86,18 +79,16 @@ def main() -> None:
     token = os.environ.get("HF_TOKEN")
     if args.source_dir is None and not token:
         parser.error(f"HF_TOKEN is required for the gated dataset; add it to {args.env_file}")
-    release = RELEASES[args.dataset]
     source = DatasetSource(
-        release,
+        DATASET_RELEASE,
         revision=args.revision,
         cache_dir=args.cache_dir,
         source_dir=args.source_dir,
         token=token,
     )
-    output_dir = args.output_dir or Path(f"datasets/biomystery-bench-{args.dataset}")
     generated = BioMysteryBenchAdapter(
         source=source,
-        output_dir=output_dir,
+        output_dir=args.output_dir,
         limit=args.limit,
         overwrite=args.overwrite,
         task_ids=args.task_ids,
