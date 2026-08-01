@@ -1,0 +1,40 @@
+schema_version = "1.4"
+
+[task]
+name = {{ package_name | tojson }}
+version = "1.0.0"
+description = {{ question | tojson }}
+authors = [{ name = "Genentech CompBioBench authors" }]
+keywords = ["biology", "bioinformatics", "scientific-reasoning", "data-analysis"]
+
+[metadata]
+difficulty = "unknown"
+category = "scientific-data-analysis"
+tags = ["biology", "bioinformatics", "compbiobench", {{ domain | tojson }}]
+upstream_question_id = {{ task_id | tojson }}
+upstream_curator = {{ curator_name | tojson }}
+upstream_domain = {{ domain | tojson }}
+upstream_question_style = {{ question_style | tojson }}
+upstream_skills_tested = {{ skills_tested | tojson }}
+upstream_repo = {{ source_repo | tojson }}
+upstream_revision = {{ source_revision | tojson }}
+upstream_runner_repo = {{ runner_repo | tojson }}
+upstream_runner_revision = {{ runner_revision | tojson }}
+internet_required = {{ internet_required | lower }}
+gpu_preferred = {{ gpu_preferred | lower }}
+official_answers_available = false
+
+[agent]
+network_mode = "public"
+timeout_sec = 7200.0
+
+[verifier]
+network_mode = "no-network"
+timeout_sec = 120.0
+
+[environment]
+build_timeout_sec = 3600.0
+cpus = 4
+memory_mb = 8192
+storage_mb = 10240
+gpus = 0
