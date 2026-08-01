@@ -94,22 +94,30 @@ Node.js, the stated R/Bioconductor packages, a conda Python 3.11 scientific
 environment, and a uv-managed Python 3.12 environment. Agent network access is
 restricted to the benchmark's package and bioinformatics-domain allowlist.
 
-### Bio Research plugin comparison
+### Reusable Bio Research plugin harness
 
-`job.yaml` runs `hb002` and `hb010` once with the oracle, an ordinary Claude Code
-Opus 4.8 control, and a separately labeled Opus 4.8 treatment using Anthropic's
-Bio Research plugin. The treatment is implemented by
-`biomistery_bench.harness:BioResearchClaudeCode`; it does not change the task
-prompt. Remove that agent entry from `job.yaml` to disable the treatment.
+`shared.agents.bio_research_claude_code:BioResearchClaudeCode` is independent of
+both dataset adapters and can be attached to any Harbor benchmark. The treatment
+in `job.yaml` shows the required import path, MCP allowlist, and OAuth environment
+for an Opus 4.8 run. It labels plugin trials separately and does not change task
+files. The treatment uses the optional `instruction_prefix` argument to ask Claude
+to inspect the plugin before solving the original task. This makes it a nudged
+plugin treatment rather than a plugin-availability-only comparison.
 
-The plugin is vendored from `anthropics/knowledge-work-plugins` at commit
-`ace462f156540bf75fb8ea9427d343a38c490015`. The harness stages it in the trial,
-removes only the upstream Benchling placeholder with an empty URL, and starts
-Claude Code with `--plugin-dir`. Its ten configured MCP endpoint hosts are added
-only to the treatment's agent-phase allowlist. Five redundant FTP, documentation,
-and alternate package mirrors are omitted from generated task allowlists so the
-merged treatment policy fits Daytona's 20-domain limit while retaining the
-corresponding primary hosts. The model's
+The harness downloads `anthropics/knowledge-work-plugins` directly from upstream
+at commit `ace462f156540bf75fb8ea9427d343a38c490015`, verifies the pinned archive
+SHA-256, and caches only the Bio Research plugin under
+`~/.cache/harbor/plugins`. No upstream plugin source is committed to this
+repository. The harness stages the cached plugin in each trial, removes only the
+upstream Benchling placeholder with an empty URL, and starts Claude Code with
+`--plugin-dir`. Set `XDG_CACHE_HOME` to relocate the host cache, or pass
+`plugin_cache_dir` in the treatment agent's `kwargs`.
+
+The plugin's ten configured MCP endpoint hosts are added only to the treatment's
+agent-phase allowlist. Five redundant FTP, documentation, and alternate package
+mirrors are omitted from generated task allowlists so the merged treatment policy
+fits Daytona's 20-domain limit while retaining the corresponding primary hosts.
+The model's
 `CLAUDE_CODE_OAUTH_TOKEN` does not authenticate those separate MCP services;
 connector-specific OAuth state must be supplied independently when it becomes
 available. Unauthenticated connectors may appear disconnected without preventing
@@ -121,12 +129,23 @@ task rewards, runtime, token use, and tool calls remain separate from the
 `/logs/artifacts/bio-research-plugin.json` with the plugin revision, digest,
 skills, and MCP server names.
 
-The verified Daytona job `2026-08-01__11-37-56` completed all six trials in
-11 minutes with zero errors or retries. Oracle, control Opus, and plugin Opus all
-scored `1.0` on both tasks, so the observed score lift was zero. Neither treatment
-trajectory invoked a Bio Research skill or MCP tool. Across the two model trials,
-the control used 614 summed agent-seconds and reported $2.01 of model cost; the
-treatment used 772 seconds and reported $3.38. This is a one-attempt smoke
+Set `mcp_healthcheck: true` in the treatment agent's `kwargs` to run Claude's MCP
+health command inside the agent-phase Daytona network and retain
+`/logs/artifacts/bio-research-mcp-health.txt`. A one-time Daytona diagnostic
+confirmed that PubMed, bioRxiv, Consensus, Clinical Trials, ChEMBL, and Open
+Targets connect; BioRender, Synapse, Wiley, and Owkin require separate
+authentication. The unmodified retry made no plugin call. After enabling the
+instruction prefix, the treatment invoked `bio-research:start`, loaded the
+upstream skill successfully, and scored `1.0`. It made no MCP call because none
+was relevant to the local genome-identification workflow.
+
+The post-refactor Daytona job `2026-08-01__13-18-45` completed all four trials in
+8 minutes 23 seconds with zero errors or retries. Control Opus and plugin Opus both
+scored `1.0` on `hb002` and `hb010`, so the observed score lift was zero. Both
+treatment artifacts confirm that the pinned plugin loaded, although neither
+trajectory invoked a Bio Research skill or MCP tool. Across the two trials, the
+control used 528 summed agent-seconds and reported $2.17 of model cost; the
+treatment used 621 seconds and reported $2.32. This is a one-attempt smoke
 comparison on two ceiling-scoring tasks, not an estimate of broader benchmark
 impact.
 
@@ -141,5 +160,5 @@ mount or a short-lived signed URL that is revoked before agent execution.
 ```bash
 uv run ruff check .
 uv run pytest
-uv run --env-file .env harbor run -c job.yaml -a oracle -y -q
+uv run --env-file .env harbor run -c job.yaml -y -q
 ```

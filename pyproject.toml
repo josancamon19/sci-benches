@@ -28,7 +28,7 @@ dev = [
 ]
 
 [tool.uv.build-backend]
-module-name = ["genebench_pro", "biomistery_bench", "compbiobench"]
+module-name = ["genebench_pro", "biomistery_bench", "compbiobench", "shared"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -36,7 +36,6 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-extend-exclude = ["vendor"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
