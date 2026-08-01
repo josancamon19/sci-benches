@@ -5,7 +5,9 @@ import json
 from pathlib import Path
 
 import pytest
+from harbor.analyze.models import load_rubric
 from harbor.models.task.config import TaskConfig
+from pypdf import PdfWriter
 
 from genebench_pro.adapter import EXPECTED_PROBLEM_COUNT, GeneBenchProAdapter
 
@@ -50,9 +52,15 @@ def source_package(tmp_path: Path) -> Path:
         }
         config_path = problem_dir / "eval_config.json"
         config_path.write_text(json.dumps(config), encoding="utf-8")
+        report_path = problem_dir / "report_public.pdf"
+        writer = PdfWriter()
+        writer.add_blank_page(width=72, height=72)
+        with report_path.open("wb") as report_file:
+            writer.write(report_file)
 
         config_name = config_path.relative_to(source).as_posix()
         data_name = data_path.relative_to(source).as_posix()
+        report_name = report_path.relative_to(source).as_posix()
         manifest_problems.append(
             {
                 "release_order": index,
@@ -65,6 +73,7 @@ def source_package(tmp_path: Path) -> Path:
                 "files": [
                     {"path": config_name, "sha256": _sha256(config_path)},
                     {"path": data_name, "sha256": _sha256(data_path)},
+                    {"path": report_name, "sha256": _sha256(report_path)},
                 ],
             }
         )
@@ -86,7 +95,12 @@ def test_adapter_generates_valid_isolated_tasks(source_package: Path, tmp_path: 
 
     assert len(generated) == EXPECTED_PROBLEM_COUNT
     for task_dir in generated:
-        TaskConfig.model_validate_toml((task_dir / "task.toml").read_text(encoding="utf-8"))
+        task_config = TaskConfig.model_validate_toml(
+            (task_dir / "task.toml").read_text(encoding="utf-8")
+        )
+        assert task_config.agent.network_mode.value == "no-network"
+        assert task_config.agent.timeout_sec == 3600.0
+        assert task_config.verifier.network_mode.value == "no-network"
         instruction = (task_dir / "instruction.md").read_text(encoding="utf-8")
         assert instruction.startswith(f"Analyze synthetic {task_dir.name.replace('_', ' ')}.")
         assert instruction.count("/app/result.json") == 1
@@ -102,6 +116,8 @@ def test_adapter_generates_valid_isolated_tasks(source_package: Path, tmp_path: 
         assert not (task_dir / "environment" / "eval_config.json").exists()
         assert (task_dir / "tests" / "eval_config.json").is_file()
         assert (task_dir / "tests" / "reference_grader.py").is_file()
+        assert (task_dir / "tests" / "report_public.pdf").is_file()
+        assert (task_dir / "tests" / "report_public.txt").is_file()
         assert (task_dir / "solution" / "oracle_answer.json").is_file()
         assert (task_dir / "solution" / "solve.sh").stat().st_mode & 0o111
         assert (task_dir / "tests" / "test.sh").stat().st_mode & 0o111
@@ -125,3 +141,18 @@ def test_adapter_filters_task_ids_and_rejects_unknown_ids(
             output_dir=tmp_path / "unknown",
             task_ids=["not_a_problem"],
         ).run()
+
+
+def test_paper_review_rubric_is_valid() -> None:
+    rubric = load_rubric(Path("rubrics/genebench-pro-review.toml"))
+    assert [criterion.name for criterion in rubric.criteria] == [
+        "recoverable_realized_target",
+        "unique_identifiable_estimand",
+        "defensible_alternative_methods",
+        "method_and_dgp_parity",
+        "solver_visible_evidence_consistency",
+        "qc_and_ablation_robustness",
+        "simulation_realism_and_leakage",
+        "multistage_workflow_fidelity",
+        "prompt_grader_alignment",
+    ]

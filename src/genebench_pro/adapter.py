@@ -11,6 +11,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 from jinja2 import Environment, StrictUndefined
+from pypdf import PdfReader
 
 HF_REPO_ID = "ajh-oai/genebench-pro-public-package"
 DEFAULT_REVISION = "9bd2c54a6c0beef041e3504aa7eb65fc77783e18"
@@ -23,6 +24,7 @@ _SNAPSHOT_PATTERNS = (
     "reference_grader.py",
     "problems/*/eval_config.json",
     "problems/*/data_files/*",
+    "problems/*/report_public.pdf",
 )
 _UPSTREAM_OUTPUT_INSTRUCTION = "Return the JSON object in your final answer:"
 _HARBOR_OUTPUT_INSTRUCTION = "Save the JSON object to `/app/result.json`:"
@@ -43,6 +45,7 @@ class Problem:
     eval_uuid: str
     config: dict[str, Any]
     source_dir: Path
+    report_path: Path
     manifest_entry: dict[str, Any]
 
     @property
@@ -117,6 +120,10 @@ def discover_problems(source_dir: Path) -> list[Problem]:
         }
         _verify_file(config_path, expected_hashes.get(entry["eval_config"]))
 
+        report_path = problem_dir / "report_public.pdf"
+        report_name = report_path.relative_to(source_dir).as_posix()
+        _verify_file(report_path, expected_hashes.get(report_name))
+
         data_files = config.get("data_files")
         if not isinstance(data_files, list) or not data_files:
             raise ValueError(f"Problem {task_id} has no staged data files")
@@ -133,6 +140,7 @@ def discover_problems(source_dir: Path) -> list[Problem]:
                 eval_uuid=str(entry["eval_uuid"]),
                 config=config,
                 source_dir=problem_dir,
+                report_path=report_path,
                 manifest_entry=entry,
             )
         )
@@ -226,6 +234,11 @@ class GeneBenchProAdapter:
         config_text = json.dumps(problem.config, indent=2, sort_keys=True) + "\n"
         (tests_dir / "eval_config.json").write_text(config_text, encoding="utf-8")
         shutil.copy2(self.source_dir / "reference_grader.py", tests_dir / "reference_grader.py")
+        shutil.copy2(problem.report_path, tests_dir / "report_public.pdf")
+        (tests_dir / "report_public.txt").write_text(
+            _extract_pdf_text(problem.report_path),
+            encoding="utf-8",
+        )
 
         oracle_submission = {
             "answer": problem.config["ground_truth"],
@@ -306,3 +319,9 @@ def _verify_file(path: Path, expected_sha256: str | None) -> None:
         raise ValueError(
             f"Checksum mismatch for {path}: expected {expected_sha256}, found {actual}"
         )
+
+
+def _extract_pdf_text(path: Path) -> str:
+    pages = [page.extract_text() or "" for page in PdfReader(path).pages]
+    text = "\n\n".join(page.strip() for page in pages if page.strip())
+    return f"{text}\n" if text else "No extractable text in the public case-study report.\n"

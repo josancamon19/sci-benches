@@ -1,7 +1,11 @@
 jobs_dir: jobs
 n_attempts: 1
-n_concurrent_trials: 1
+n_concurrent_trials: 16
 timeout_multiplier: 1.0
+retry:
+  max_retries: 2
+  include_exceptions:
+    - NetworkConnectionError
 
 environment:
   type: daytona
@@ -18,13 +22,31 @@ artifacts:
       - data_files
 
 agents:
+  - name: oracle
   - name: claude-code
     model_name: anthropic/claude-opus-4-8
+    extra_allowed_hosts:
+      - api.anthropic.com
     env:
       CLAUDE_CODE_OAUTH_TOKEN: "${CLAUDE_CODE_OAUTH_TOKEN}"
       CLAUDE_FORCE_OAUTH: "${CLAUDE_FORCE_OAUTH:-YES}"
 
+  - name: codex
+    model_name: openai/gpt-5.6-sol
+    extra_allowed_hosts:
+      - chatgpt.com
+    env:
+      CODEX_FORCE_AUTH_JSON: "${CODEX_FORCE_AUTH_JSON:-YES}"
+
+  - name: opencode
+    model_name: openai/accounts/fireworks/models/glm-5p2
+    extra_allowed_hosts:
+      - api.fireworks.ai
+    env:
+      OPENAI_API_KEY: "${FIREWORKS_API_KEY}"
+      OPENAI_BASE_URL: https://api.fireworks.ai/inference/v1
+
 datasets:
   - path: datasets/genebench-pro
-    task_names:
-      - wf_selection
+    # task_names:
+    #   - wf_selection
