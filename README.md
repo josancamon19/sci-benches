@@ -4,7 +4,7 @@ This repository converts the ten public [GeneBench-Pro case studies](https://hug
 
 The generated agent workspace contains only the released `data_files/`; the public ground truth, reference grader, and public problem report are placed under Harbor's `tests/` directory, which Harbor uploads only after the agent phase. The adapter also extracts the report text for trajectory analysis. It preserves each scientific prompt, removes three redundant response-format lines, and replaces only the final response instruction with a request to save the JSON object at `/app/result.json`.
 
-Each task image provides Python 3.13 with NumPy, pandas, SciPy, scikit-learn, statsmodels, lifelines, matplotlib, seaborn, PyArrow, pysnptools, bed-reader, and pysam. It also includes bedtools 2.31.1 and the official PLINK 2 Alpha 7.1 build dated 2026-05-04. Package versions and the PLINK archive checksum are pinned in the task Dockerfile.
+Each task image mirrors the complete analysis environment named in the paper's Methods section. It provides Python 3.13 with the general scientific stack; PLINK 2.0, BEDTools, Tabix, pysam, cyvcf2, pybedtools, pyBigWig, pyfaidx, pysnptools, bed-reader, and PyRanges; Scanpy, AnnData, Scrublet, and PyDESeq2; and R 4.5 with Seurat, DESeq2, edgeR, limma, tximport, SingleCellExperiment, zellkonverter, and scDblFinder. Direct package versions and downloaded archive checksums are pinned in the task Dockerfile.
 
 ## Setup
 
