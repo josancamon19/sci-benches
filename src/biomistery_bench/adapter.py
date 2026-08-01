@@ -64,6 +64,7 @@ _REQUIRED_COLUMNS = {
     "human_solvable",
 }
 _TASK_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]*$")
+_SCORE_RULE_PATTERN = re.compile(r"\s+Score 1\.0 if\b", re.IGNORECASE)
 _HOST_PATTERN = re.compile(
     r"^(?:\*\.)?(?=.{1,253}$)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+"
     r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
@@ -368,7 +369,8 @@ class BioMysteryBenchAdapter:
             )
             (tests_dir / "reference.md").write_text(reference, encoding="utf-8")
             (solution_dir / "oracle_answer.txt").write_text(
-                problem.answer_rubric + "\n", encoding="utf-8"
+                _oracle_answer_from_rubric(problem.answer_rubric) + "\n",
+                encoding="utf-8",
             )
             (tests_dir / "source.json").write_text(
                 json.dumps(
@@ -429,6 +431,14 @@ def _parse_allowed_domains(value: str, *, task_id: str) -> tuple[str, ...]:
     if not domains:
         raise ValueError(f"Problem {task_id} has no allowed domains")
     return tuple(domains)
+
+
+def _oracle_answer_from_rubric(answer_rubric: str) -> str:
+    answer = _SCORE_RULE_PATTERN.split(answer_rubric, maxsplit=1)[0].strip()
+    mentions_prefix = "Answer mentions all of the following:"
+    if answer.casefold().startswith(mentions_prefix.casefold()):
+        answer = f"The answer is: {answer[len(mentions_prefix):].strip()}"
+    return answer
 
 
 def _extract_problem_archive(

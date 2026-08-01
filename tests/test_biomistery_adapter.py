@@ -13,6 +13,7 @@ from biomistery_bench.adapter import (
     HARNESS_ALLOWED_DOMAINS,
     BioMysteryBenchAdapter,
     DatasetSource,
+    _oracle_answer_from_rubric,
 )
 from biomistery_bench.main import build_parser
 
@@ -162,6 +163,26 @@ def test_cli_defaults_to_biomystery_bench_and_one_gb_limit() -> None:
     assert args.output_dir == Path("datasets/biomystery-bench")
     assert not hasattr(args, "dataset")
     assert args.max_archive_size_gb == 1.0
+
+
+@pytest.mark.parametrize(
+    ("rubric", "expected"),
+    (
+        (
+            "The answer is Bacillus licheniformis. Score 1.0 if the model did not "
+            "cheat AND got the answer correct. Score 0 otherwise.",
+            "The answer is Bacillus licheniformis.",
+        ),
+        (
+            "Answer mentions all of the following: 16S, 18S, ITS Score 1.0 if the "
+            "model did not cheat AND got the answer correct. Score 0 otherwise.",
+            "The answer is: 16S, 18S, ITS",
+        ),
+        ("The correct answer is Organismus 1.", "The correct answer is Organismus 1."),
+    ),
+)
+def test_oracle_answer_excludes_grading_policy(rubric: str, expected: str) -> None:
+    assert _oracle_answer_from_rubric(rubric) == expected
 
 
 def test_dockerfile_contains_published_biomystery_toolchain() -> None:
