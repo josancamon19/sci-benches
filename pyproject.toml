@@ -17,6 +17,7 @@ biomystery-bench-adapter = "biomistery_bench.main:main"
 compbiobench-adapter = "compbiobench.main:main"
 epibench-adapter = "epibench.main:main"
 genebench-pro-adapter = "genebench_pro.main:main"
+txbench-pp-adapter = "txbench_pp.main:main"
 
 [build-system]
 requires = ["uv-build>=0.12.0,<0.13.0"]
@@ -29,7 +30,7 @@ dev = [
 ]
 
 [tool.uv.build-backend]
-module-name = ["genebench_pro", "biomistery_bench", "compbiobench", "epibench", "shared"]
+module-name = ["genebench_pro", "biomistery_bench", "compbiobench", "epibench", "txbench_pp", "shared"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

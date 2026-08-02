@@ -14,6 +14,8 @@ under `datasets/` and `jobs/`.
 | `genebench-pro-adapter` | [GeneBench-Pro public package](https://huggingface.co/datasets/ajh-oai/genebench-pro-public-package) | All 10 released problems, isolated inputs, deterministic reference verifiers, and the scientific Python, R, and genomics toolchain described by the benchmark. |
 | `biomystery-bench-adapter` | [Anthropic BioMysteryBench-full](https://huggingface.co/datasets/Anthropic/BioMysteryBench-full) | The gated 90-task release with official answer rubrics and the benchmark anti-cheating rule. Archives larger than 1 GB are skipped by default. |
 | `compbiobench-adapter` | [Genentech CompBioBench v1](https://huggingface.co/datasets/Genentech/compbiobench-data-v1) | All 100 public prompts and input files. Official answers are not released, so these tasks capture answers but intentionally do not claim an official benchmark score. |
+| `epibench-adapter` | [LatchBio EpiBench](https://github.com/latchbio/epibench) | All seven public evaluations with authenticated Latch inputs and reconstructed public-reference verifiers. |
+| `txbench-pp-adapter` | [LatchBio TxBench-PP](https://github.com/latchbio/txbench-pp) | All 12 manifest-listed preclinical pharmacology evaluations with authenticated Latch inputs and the published `latch-eval-tools` graders. |
 
 Adapters pin their upstream revisions and stage downloaded inputs on the host.
 Credentials are not copied into generated task images or exposed to solving
@@ -35,6 +37,7 @@ Keep credentials in a gitignored `.env` file:
 DAYTONA_API_KEY=...
 CLAUDE_CODE_OAUTH_TOKEN=...
 HF_TOKEN=... # required only for gated BioMysteryBench exports
+LATCH_BIO_API_KEY=... # required for EpiBench and TxBench-PP exports
 ```
 
 ## Export tasks
@@ -48,6 +51,12 @@ uv run biomystery-bench-adapter --task-ids hb002 hb010 --overwrite
 
 # One CompBioBench task
 uv run compbiobench-adapter --task-ids bam-infer-read-length-q1 --overwrite
+
+# All public EpiBench tasks
+uv run epibench-adapter --output-dir datasets/epibench
+
+# All public TxBench-PP tasks
+uv run txbench-pp-adapter --output-dir datasets/txbench-pp
 ```
 
 Each adapter also supports `--limit`, `--task-ids`, `--overwrite`, and

@@ -1,0 +1,39 @@
+schema_version = "1.4"
+
+[task]
+name = {{ package_name | tojson }}
+version = "1.0.0"
+description = {{ task_id | tojson }}
+authors = [{ name = "LatchBio TxBench-PP authors" }]
+keywords = ["biology", "drug-discovery", "preclinical-pharmacology", "data-analysis"]
+
+[metadata]
+difficulty = "hard"
+category = "scientific-data-analysis"
+tags = ["biology", "drug-discovery", "txbench-pp", {{ kit | tojson }}, {{ task_family | tojson }}]
+upstream_eval_id = {{ task_id | tojson }}
+upstream_repo = {{ source_repo | tojson }}
+upstream_revision = {{ source_revision | tojson }}
+upstream_kit = {{ kit | tojson }}
+upstream_task_family = {{ task_family | tojson }}
+upstream_time_horizon = {{ time_horizon | tojson }}
+upstream_grader_type = {{ grader_type | tojson }}
+input_file_count = {{ input_file_count }}
+input_size_bytes = {{ input_size_bytes }}
+official_verifier_available = true
+grader_provenance = "latch-eval-tools==0.4.17"
+
+[agent]
+network_mode = "no-network"
+timeout_sec = {{ timeout_sec }}.0
+
+[verifier]
+network_mode = "no-network"
+timeout_sec = 300.0
+
+[environment]
+build_timeout_sec = {{ build_timeout_sec }}.0
+cpus = {{ cpus }}
+memory_mb = {{ memory_mb }}
+storage_mb = {{ storage_mb }}
+gpus = 0
