@@ -127,6 +127,8 @@ def test_adapter_generates_valid_isolated_tasks(source_checkout: Path, tmp_path:
         dockerfile = (task_dir / "environment" / "Dockerfile").read_text(encoding="utf-8")
         assert "COPY data/* /app/data/" in dockerfile
         assert "COPY data/ /app/data/" not in dockerfile
+        assert "macs2 callpeak" in dockerfile
+        assert 'VOLUME ["/app/work", "/tmp/w", "/root/w"]' in dockerfile
         assert list((task_dir / "environment" / "data").glob("*.tsv"))
         assert not (task_dir / "environment" / "fallback_grader.json").exists()
         assert (task_dir / "tests" / "fallback_grader.json").is_file()

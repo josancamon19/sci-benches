@@ -74,6 +74,12 @@ environment:
   delete: true
 ```
 
+The generated Docker image declares ephemeral work volumes at `/app/work`,
+`/tmp/w`, and `/root/w`. Daytona mounts those paths outside its quota-limited
+writable image layer, which gives storage-heavy ATAC-seq workflows room for
+insertion BEDs and peak-calling intermediates without a custom Harbor
+environment class.
+
 The public representative EpiBench trajectories report 32 CPUs and about 123
 GiB usable RAM. This Daytona account permits at most 4 CPUs, 8 GiB RAM, and 10
 GiB disk per sandbox, so generated tasks request those account maxima. Agents

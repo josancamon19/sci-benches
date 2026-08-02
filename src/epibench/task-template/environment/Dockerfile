@@ -1,4 +1,4 @@
-FROM debian:trixie-slim
+FROM debian:bookworm-slim
 
 ARG MINIFORGE_VERSION=26.3.2-3
 ARG MINIFORGE_SHA256=848194851a98903134187fbb4ab50efe87b003e0c0f808f97644b7524a62bf2c
@@ -44,6 +44,7 @@ RUN conda install --yes --name base \
         --channel bioconda \
         python=3.11 \
         pip \
+        cython=0.29 \
         numpy \
         pandas \
         scipy \
@@ -67,7 +68,6 @@ RUN conda install --yes --name base \
         htslib \
         tabix \
         homer \
-        macs2=2.2.9.1 \
         macs3=3.0.4 \
         ucsc-bedgraphtobigwig \
         ucsc-bigwigtobedgraph \
@@ -76,6 +76,9 @@ RUN conda install --yes --name base \
     conda clean --all --yes
 
 RUN python -m pip install --no-cache-dir \
+        --no-build-isolation \
+        --no-binary=MACS2 \
+        MACS2==2.2.9.1 \
         MOODS-python==1.9.4.1 \
         gseapy==1.1.11 \
         ncls==0.0.70 \
@@ -88,11 +91,28 @@ RUN python -c "import Bio, MOODS, anndata, gseapy, h5py, lifelines, matplotlib, 
     find /opt/conda -type f -path '*/knownTFs/known.motifs' -size +0c -print -quit | grep -q . && \
     macs2 --version && \
     macs3 --version && \
-    samtools --version | head -n 1
+    samtools --version | head -n 1 && \
+    printf 'chr1\t100\t101\nchr1\t200\t201\n' > /tmp/macs2-smoke.bed && \
+    macs2 callpeak \
+        -t /tmp/macs2-smoke.bed \
+        -f BED \
+        -g 1000000 \
+        -n smoke \
+        --outdir /tmp/macs2-smoke \
+        --nomodel \
+        --shift -75 \
+        --extsize 150 \
+        --keep-dup all \
+        -p 0.01 && \
+    test -f /tmp/macs2-smoke/smoke_peaks.narrowPeak && \
+    rm -rf /tmp/macs2-smoke /tmp/macs2-smoke.bed
 
 RUN printf '%s\n' 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh
 
 WORKDIR /app
 COPY data/* /app/data/
+
+# Keep analysis intermediates off Daytona's quota-limited writable image layer.
+VOLUME ["/app/work", "/tmp/w", "/root/w"]
 
 RUN mkdir -p /logs/artifacts && chmod -R a+rX /app/data
