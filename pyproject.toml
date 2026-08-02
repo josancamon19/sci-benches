@@ -15,6 +15,7 @@ dependencies = [
 [project.scripts]
 biomystery-bench-adapter = "biomistery_bench.main:main"
 compbiobench-adapter = "compbiobench.main:main"
+epibench-adapter = "epibench.main:main"
 genebench-pro-adapter = "genebench_pro.main:main"
 
 [build-system]
@@ -28,7 +29,7 @@ dev = [
 ]
 
 [tool.uv.build-backend]
-module-name = ["genebench_pro", "biomistery_bench", "compbiobench", "shared"]
+module-name = ["genebench_pro", "biomistery_bench", "compbiobench", "epibench", "shared"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

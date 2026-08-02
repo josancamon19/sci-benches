@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "notice": "LatchBio has released the generic latch-eval-tools grader engine, but the public EpiBench evals omit their task-specific grader configs, ground truths, reference intervals, and tolerances. These fallback references were reconstructed from public trajectories and public paper-supporting results. Accepted variants normally come from passing runs; explicitly labeled compatibility variants cover a scientifically overlapping interpretation where the public task wording does not expose the private grader's distinction.",
+  "upstream_revision": "6bc01f15125f5a01ab78ce1fd2fc2c51c4ca04f3",
+  "supporting_results_revision": "309357153eecb72699b054c5a7f16f7dfef28e7f",
+  "tasks": {
+    "atac_1a": {
+      "upstream_grader_type": "numeric_tolerance",
+      "fields": {
+        "n_consensus_peaks_ETV6_RUNX1": {"comparison": "numeric", "integer": true, "absolute_tolerance": 1, "relative_tolerance": 0.005},
+        "n_consensus_peaks_DUX4_ERG": {"comparison": "numeric", "integer": true, "absolute_tolerance": 1, "relative_tolerance": 0.005},
+        "n_consensus_peaks_Hyperdiploid": {"comparison": "numeric", "integer": true, "absolute_tolerance": 1, "relative_tolerance": 0.005},
+        "tss2kb_frac_ETV6_RUNX1": {"comparison": "numeric", "absolute_tolerance": 0.002, "relative_tolerance": 0},
+        "tss2kb_frac_DUX4_ERG": {"comparison": "numeric", "absolute_tolerance": 0.002, "relative_tolerance": 0},
+        "tss2kb_frac_Hyperdiploid": {"comparison": "numeric", "absolute_tolerance": 0.002, "relative_tolerance": 0},
+        "technical_answer": {"comparison": "numeric", "integer": true, "absolute_tolerance": 0, "relative_tolerance": 0},
+        "interpretation_answer": {"comparison": "numeric", "integer": true, "absolute_tolerance": 0, "relative_tolerance": 0}
+      },
+      "accepted_variants": [
+        {
+          "answer": {
+            "n_consensus_peaks_ETV6_RUNX1": 97293,
+            "n_consensus_peaks_DUX4_ERG": 104432,
+            "n_consensus_peaks_Hyperdiploid": 70119,
+            "tss2kb_frac_ETV6_RUNX1": 0.3481,
+            "tss2kb_frac_DUX4_ERG": 0.3184,
+            "tss2kb_frac_Hyperdiploid": 0.3762,
+            "technical_answer": 4,
+            "interpretation_answer": 2
+          },
+          "trajectory": "trajectories/atac_1a/anthropic/claude-opus-4-8/claude-code/r1/trajectory.json",
+          "result_model_harness": "anthropic_claude-opus-4-8_claude-code",
+          "result_round": "r1"
+        },
+        {
+          "answer": {
+            "n_consensus_peaks_ETV6_RUNX1": "97566",
+            "n_consensus_peaks_DUX4_ERG": "104583",
+            "n_consensus_peaks_Hyperdiploid": "70378",
+            "tss2kb_frac_ETV6_RUNX1": "0.34793883115019575",
+            "tss2kb_frac_DUX4_ERG": "0.3182257154604477",
+            "tss2kb_frac_Hyperdiploid": "0.37527352297593",
+            "technical_answer": "4",
+            "interpretation_answer": "2"
+          },
+          "trajectory": "trajectories/atac_1a/openai/gpt-5.5/openai-codex/r1/trajectory.json",
+          "result_model_harness": "gpt-5.5_openai-codex",
+          "result_round": "r1"
+        },
+        {
+          "answer": {
+            "n_consensus_peaks_ETV6_RUNX1": "97324",
+            "n_consensus_peaks_DUX4_ERG": "104540",
+            "n_consensus_peaks_Hyperdiploid": "70166",
+            "tss2kb_frac_ETV6_RUNX1": "0.34818",
+            "tss2kb_frac_DUX4_ERG": "0.31829",
+            "tss2kb_frac_Hyperdiploid": "0.37609",
+            "technical_answer": "4",
+            "interpretation_answer": "2"
+          },
+          "trajectory": "trajectories/atac_1a/gemini/gemini-3.5-flash/pi/r1/trajectory.json",
+          "result_model_harness": "gemini_gemini-3.5-flash_pi",
+          "result_round": "r1"
+        }
+      ]
+    },
+    "chipseq_K2": {
+      "upstream_grader_type": "numeric_tolerance",
+      "fields": {
+        "pax5_outside_leading_band": {"comparison": "numeric", "integer": true, "absolute_tolerance": 0, "relative_tolerance": 0},
+        "biological_answer": {"comparison": "numeric", "integer": true, "absolute_tolerance": 0, "relative_tolerance": 0}
+      },
+      "accepted_variants": [
+        {
+          "answer": {"pax5_outside_leading_band": "1", "biological_answer": "7"},
+          "trajectory": "trajectories/chipseq_K2/anthropic/claude-opus-4-8/claude-code/r1/trajectory.json",
+          "result_model_harness": "anthropic_claude-opus-4-8_claude-code",
+          "result_round": "r1"
+        },
+        {
+          "answer": {"pax5_outside_leading_band": "1", "biological_answer": 7},
+          "trajectory": "trajectories/chipseq_K2/gemini/gemini-3.5-flash/pi/r1/trajectory.json",
+          "result_model_harness": "gemini_gemini-3.5-flash_pi",
+          "result_round": "r1"
+        }
+      ]
+    },
+    "cold_03b": {
+      "upstream_grader_type": "numeric_tolerance",
+      "fields": {
+        "pooled_silent_fraction_pct": {"comparison": "numeric", "absolute_tolerance": 0.1, "relative_tolerance": 0},
+        "promoter_fraction_silent_pct": {"comparison": "numeric", "absolute_tolerance": 0.5, "relative_tolerance": 0},
+        "promoter_fraction_concordant_pct": {"comparison": "numeric", "absolute_tolerance": 1.0, "relative_tolerance": 0},
+        "median_nearest_tss_silent_kb": {"comparison": "numeric", "absolute_tolerance": 0.1, "relative_tolerance": 0},
+        "technical_answer": {"comparison": "numeric", "integer": true, "absolute_tolerance": 0, "relative_tolerance": 0},
+        "biological_answer": {"comparison": "numeric", "integer": true, "absolute_tolerance": 0, "relative_tolerance": 0}
+      },
+      "accepted_variants": [
+        {
+          "answer": {
+            "pooled_silent_fraction_pct": "94.62",
+            "promoter_fraction_silent_pct": "11.44",
+            "promoter_fraction_concordant_pct": "45.15",
+            "median_nearest_tss_silent_kb": "15.44",
+            "technical_answer": "10",
+            "biological_answer": "9"
+          },
+          "trajectory": "trajectories/cold_03b/openai/gpt-5.5/openai-codex/r1/trajectory.json",
+          "result_model_harness": "gpt-5.5_openai-codex",
+          "result_round": "r1",
+          "reconstruction_note": "The public Codex file-change event omits the patch body. Values are taken from the immediately preceding public calculation and its stated two-decimal rounding rule."
+        }
+      ]
+    },
+    "gse149608_c3_enhancer_methylation": {
+      "upstream_grader_type": "all_of",
+      "fields": {
+        "n_paradoxical": {"comparison": "numeric", "integer": true, "absolute_tolerance": 3, "relative_tolerance": 0},
+        "mean_enhancer_delta_beta": {"comparison": "numeric", "absolute_tolerance": 0.01, "relative_tolerance": 0},
+        "answer": {"comparison": "exact", "case_sensitive": false}
+      },
+      "accepted_variants": [
+        {
+          "answer": {"n_paradoxical": 23, "mean_enhancer_delta_beta": 0.028, "answer": "A"},
+          "trajectory": "trajectories/gse149608_c3_enhancer_methylation/anthropic/claude-opus-4-8/claude-code/r1/trajectory.json",
+          "result_model_harness": "anthropic_claude-opus-4-8_claude-code",
+          "result_round": "r1"
+        },
+        {
+          "answer": {"n_paradoxical": 47, "mean_enhancer_delta_beta": 0.02, "answer": "A"},
+          "trajectory": "trajectories/gse149608_c3_enhancer_methylation/xai/grok-4.3/pi/r1/trajectory.json",
+          "result_model_harness": "xai_grok-4.3_pi",
+          "result_round": "r1"
+        }
+      ]
+    },
+    "gse149608_wnt2_promoter_genome_build": {
+      "upstream_grader_type": "numeric_tolerance",
+      "fields": {
+        "n_cpgs": {"comparison": "numeric", "integer": true, "absolute_tolerance": 0, "relative_tolerance": 0},
+        "mean_tumor_methylation": {"comparison": "numeric", "absolute_tolerance": 0.005, "relative_tolerance": 0}
+      },
+      "accepted_variants": [
+        {
+          "answer": {"n_cpgs": 102, "mean_tumor_methylation": 0.18380388488773913},
+          "trajectory": "trajectories/gse149608_wnt2_promoter_genome_build/openai/gpt-5.5/openai-codex/r1/trajectory.json",
+          "result_model_harness": "gpt-5.5_openai-codex",
+          "result_round": "r1"
+        },
+        {
+          "answer": {"n_cpgs": 90, "mean_tumor_methylation": 0.207111},
+          "trajectory": "trajectories/gse149608_wnt2_promoter_genome_build/gemini/gemini-3.5-flash/pi/r1/trajectory.json",
+          "result_model_harness": "gemini_gemini-3.5-flash_pi",
+          "result_round": "r1"
+        }
+      ]
+    },
+    "zebrafish_009c_cutnrun_vs_chip_h3k9me3": {
+      "upstream_grader_type": "numeric_tolerance",
+      "fields": {
+        "n_cutnrun_peaks": {"comparison": "numeric", "integer": true, "absolute_tolerance": 1, "relative_tolerance": 0.02},
+        "n_chip_peaks": {"comparison": "numeric", "integer": true, "absolute_tolerance": 0, "relative_tolerance": 0},
+        "cutnrun_peaks_overlapping_chip": {"comparison": "numeric", "integer": true, "absolute_tolerance": 1, "relative_tolerance": 0.02},
+        "overlap_fraction_cutnrun": {"comparison": "numeric", "absolute_tolerance": 0.02, "relative_tolerance": 0},
+        "frip_cutnrun": {"comparison": "numeric", "absolute_tolerance": 0.02, "relative_tolerance": 0},
+        "cutnrun_coverage_mb": {"comparison": "numeric", "absolute_tolerance": 1.0, "relative_tolerance": 0.02},
+        "chip_coverage_mb": {"comparison": "numeric", "absolute_tolerance": 0.01, "relative_tolerance": 0},
+        "assay_comparison_code": {"comparison": "numeric", "integer": true, "absolute_tolerance": 0, "relative_tolerance": 0}
+      },
+      "accepted_variants": [
+        {
+          "answer": {
+            "n_cutnrun_peaks": 118593,
+            "n_chip_peaks": 178484,
+            "cutnrun_peaks_overlapping_chip": 61666,
+            "overlap_fraction_cutnrun": 0.52,
+            "frip_cutnrun": 0.5462,
+            "cutnrun_coverage_mb": 82.7553,
+            "chip_coverage_mb": 56.2274,
+            "assay_comparison_code": 2
+          },
+          "trajectory": "trajectories/zebrafish_009c_cutnrun_vs_chip_h3k9me3/anthropic/claude-opus-4-8/claude-code/r1/trajectory.json",
+          "result_model_harness": "anthropic_claude-opus-4-8_claude-code",
+          "result_round": "r1"
+        },
+        {
+          "answer": {
+            "n_cutnrun_peaks": 117082,
+            "n_chip_peaks": 178484,
+            "cutnrun_peaks_overlapping_chip": 62804,
+            "overlap_fraction_cutnrun": 0.53641037905058,
+            "frip_cutnrun": 0.5486121582183316,
+            "cutnrun_coverage_mb": 80.171548,
+            "chip_coverage_mb": 56.22736,
+            "assay_comparison_code": 2
+          },
+          "trajectory": "trajectories/zebrafish_009c_cutnrun_vs_chip_h3k9me3/openai/gpt-5.5/openai-codex/r1/trajectory.json",
+          "result_model_harness": "gpt-5.5_openai-codex",
+          "result_round": "r1"
+        },
+        {
+          "answer": {
+            "n_cutnrun_peaks": 111338,
+            "n_chip_peaks": 178484,
+            "cutnrun_peaks_overlapping_chip": 60547,
+            "overlap_fraction_cutnrun": 0.5438125348039303,
+            "frip_cutnrun": 0.5386630245001339,
+            "cutnrun_coverage_mb": 78.046401,
+            "chip_coverage_mb": 56.22736,
+            "assay_comparison_code": 2
+          },
+          "trajectory": "trajectories/zebrafish_009c_cutnrun_vs_chip_h3k9me3/gemini/gemini-3.5-flash/pi/r2/trajectory.json",
+          "result_model_harness": "gemini_gemini-3.5-flash_pi",
+          "result_round": "r2"
+        }
+      ]
+    },
+    "zebrafish_014g_h2az_bivalent_promoters": {
+      "upstream_grader_type": "numeric_tolerance",
+      "fields": {
+        "frac_h2az_bivalent": {"comparison": "numeric", "absolute_tolerance": 0.005, "relative_tolerance": 0},
+        "frac_h2az_k4only": {"comparison": "numeric", "absolute_tolerance": 0.005, "relative_tolerance": 0},
+        "frac_h2az_k27only": {"comparison": "numeric", "absolute_tolerance": 0.005, "relative_tolerance": 0},
+        "frac_h2az_background": {"comparison": "numeric", "absolute_tolerance": 0.005, "relative_tolerance": 0},
+        "enrichment_k4_vs_k27": {"comparison": "numeric", "absolute_tolerance": 0.05, "relative_tolerance": 0},
+        "n_genes_triple_marked": {"comparison": "numeric", "integer": true, "absolute_tolerance": 5, "relative_tolerance": 0},
+        "h2az_pattern_code": {"comparison": "numeric", "integer": true, "absolute_tolerance": 0, "relative_tolerance": 0}
+      },
+      "accepted_variants": [
+        {
+          "answer": {
+            "frac_h2az_bivalent": 0.8191,
+            "frac_h2az_k4only": 0.8836,
+            "frac_h2az_k27only": 0.1564,
+            "frac_h2az_background": 0.4519,
+            "enrichment_k4_vs_k27": 5.6502,
+            "n_genes_triple_marked": 3119,
+            "h2az_pattern_code": 3
+          },
+          "trajectory": "trajectories/zebrafish_014g_h2az_bivalent_promoters/anthropic/claude-opus-4-8/claude-code/r1/trajectory.json",
+          "result_model_harness": "anthropic_claude-opus-4-8_claude-code",
+          "result_round": "r1",
+          "overall_public_result_passed": false,
+          "compatibility_note": "Public Opus calculations passed every numeric field. Option 3 is accepted as a fallback because it describes the same H2A.Z enrichment at active and bivalent promoters as option 7; the unreleased private grader distinguishes them more narrowly than the solver-facing wording does."
+        },
+        {
+          "answer": {
+            "frac_h2az_bivalent": 0.8193751640850617,
+            "frac_h2az_k4only": 0.8835551330798479,
+            "frac_h2az_k27only": 0.15637622619734565,
+            "frac_h2az_background": 0.4519058453979824,
+            "enrichment_k4_vs_k27": 5.650188360248621,
+            "n_genes_triple_marked": 3121,
+            "h2az_pattern_code": 7
+          },
+          "trajectory": "trajectories/zebrafish_014g_h2az_bivalent_promoters/openai/gpt-5.5/openai-codex/r1/trajectory.json",
+          "result_model_harness": "gpt-5.5_openai-codex",
+          "result_round": "r1"
+        }
+      ]
+    }
+  }
+}
