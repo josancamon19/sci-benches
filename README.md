@@ -1,4 +1,4 @@
-# Bioinformatics benchmarks for Harbor
+# Bioinformatics benchmarks
 
 This repository packages released bioinformatics benchmarks as self-contained
 [Harbor](https://harborframework.com/) tasks that run locally or on Daytona. It
