@@ -3,9 +3,9 @@
 This repository packages released bioinformatics benchmarks as self-contained
 [Harbor](https://harborframework.com/) tasks that run locally or on Daytona. It
 contains dataset adapters, pinned task environments, verifier templates, a
-benchmark-specific review rubric, and a reusable Claude Code agent with
-Anthropic's Bio Research plugin. Generated datasets and job results stay local
-under `datasets/` and `jobs/`.
+reusable Claude Code agent with Anthropic's Bio Research plugin, and a shared
+Daytona job configuration. Generated datasets and job results stay local under
+`datasets/` and `jobs/`.
 
 ## Included benchmarks
 
@@ -46,7 +46,7 @@ LATCH_BIO_API_KEY=... # required for EpiBench and TxBench-PP exports
 # All 10 GeneBench-Pro tasks
 uv run genebench-pro-adapter --output-dir datasets/genebench-pro
 
-# The two BioMysteryBench tasks selected by job.yaml
+# Two BioMysteryBench tasks
 uv run biomystery-bench-adapter --task-ids hb002 hb010 --overwrite
 
 # One CompBioBench task
@@ -64,11 +64,11 @@ Each adapter also supports `--limit`, `--task-ids`, `--overwrite`, and
 
 ## Run the benchmark
 
-The current [`job.yaml`](job.yaml) runs `hb002` and `hb010` on Daytona once with
-two Opus 4.8 agents: a plain Claude Code control and a treatment that loads the
-pinned Bio Research plugin. It uses the default timestamped job name and retains
-the trial workspace, verifier output, rewards, logs, trajectories, and plugin
-manifest under `jobs/`.
+The current [`job.yaml`](job.yaml) runs the exported EpiBench dataset once on
+Daytona with plain Claude Code, Bio Research Claude Code, Codex, and OpenCode
+agents. It uses the default timestamped job name and retains solver outputs,
+workspace artifacts, verifier output, rewards, logs, and trajectories under
+`jobs/`.
 
 ```bash
 uv run --env-file .env harbor run -c job.yaml -y -q
@@ -78,25 +78,6 @@ The reusable treatment is implemented in
 [`src/shared/agents/bio_research_claude_code.py`](src/shared/agents/bio_research_claude_code.py).
 Its plugin revision and archive checksum are pinned, and each treatment trial
 writes an audit manifest to `/logs/artifacts/bio-research-plugin.json`.
-
-## Review GeneBench-Pro trajectories
-
-[`rubrics/genebench-pro-review.toml`](rubrics/genebench-pro-review.toml) checks
-scientific recoverability, estimator validity, implementation parity, evidence
-consistency, QC, leakage, multistage fidelity, and prompt/grader alignment.
-
-```bash
-uv run --env-file .env harbor analyze jobs/<job>/<trial> \
-  --rubric rubrics/genebench-pro-review.toml \
-  --env daytona \
-  --agent claude-code \
-  --model anthropic/claude-opus-4-8 \
-  --agent-env 'CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN}' \
-  --agent-env CLAUDE_FORCE_OAUTH=YES \
-  --n-concurrent 1 \
-  --n-attempts 1 \
-  --quiet
-```
 
 ## Validate
 

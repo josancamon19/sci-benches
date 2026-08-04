@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 
 import pytest
-from harbor.analyze.models import load_rubric
 from harbor.models.task.config import TaskConfig
 from pypdf import PdfWriter
 
@@ -141,18 +140,3 @@ def test_adapter_filters_task_ids_and_rejects_unknown_ids(
             output_dir=tmp_path / "unknown",
             task_ids=["not_a_problem"],
         ).run()
-
-
-def test_paper_review_rubric_is_valid() -> None:
-    rubric = load_rubric(Path("rubrics/genebench-pro-review.toml"))
-    assert [criterion.name for criterion in rubric.criteria] == [
-        "recoverable_realized_target",
-        "unique_identifiable_estimand",
-        "defensible_alternative_methods",
-        "method_and_dgp_parity",
-        "solver_visible_evidence_consistency",
-        "qc_and_ablation_robustness",
-        "simulation_realism_and_leakage",
-        "multistage_workflow_fidelity",
-        "prompt_grader_alignment",
-    ]
