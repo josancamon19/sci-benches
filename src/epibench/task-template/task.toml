@@ -23,7 +23,7 @@ official_verifier_available = false
 grader_provenance = "reconstructed-public-results-with-labeled-compatibility"
 
 [agent]
-network_mode = "no-network"
+network_mode = "public"
 timeout_sec = {{ timeout_sec }}.0
 
 [verifier]

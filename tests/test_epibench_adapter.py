@@ -109,7 +109,7 @@ def test_adapter_generates_valid_isolated_tasks(source_checkout: Path, tmp_path:
         task_config = TaskConfig.model_validate_toml(
             (task_dir / "task.toml").read_text(encoding="utf-8")
         )
-        assert task_config.agent.network_mode.value == "no-network"
+        assert task_config.agent.network_mode.value == "public"
         assert task_config.agent.timeout_sec == 3600.0
         assert task_config.verifier.network_mode.value == "no-network"
         assert task_config.environment.cpus == 4

@@ -58,8 +58,9 @@ The adapter runs the pinned Latch 2.76.10 CLI through an isolated `uvx`
 environment, authenticates through a temporary CLI home, stages the data into
 the generated Docker build context, and caches the downloaded node set. Latch is
 isolated because its SDK dependency range conflicts with Harbor's Daytona client.
-The token is not copied into the task. Generated agent and verifier phases use
-`no-network` mode.
+The token is not copied into the task. Generated agent phases use public network
+access, matching the released trajectories' use of resources such as Ensembl and
+UCSC; verifier phases remain in `no-network` mode.
 
 Some tasks are large: `atac_1a` contains 48 nodes and `chipseq_K2` contains 443.
 Use `--task-ids` while developing and set `--data-cache-dir` to a volume with
