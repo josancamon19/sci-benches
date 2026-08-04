@@ -10,8 +10,6 @@ from harbor.models.task.config import TaskConfig
 from biomistery_bench.adapter import (
     DATASET_RELEASE,
     DEFAULT_MAX_ARCHIVE_BYTES,
-    HARNESS_ALLOWED_DOMAINS,
-    REDUNDANT_ALLOWED_DOMAINS,
     BioMysteryBenchAdapter,
     DatasetSource,
     _oracle_answer_from_rubric,
@@ -76,21 +74,7 @@ def test_adapter_generates_valid_isolated_tasks(
         config = TaskConfig.model_validate_toml(
             (task_dir / "task.toml").read_text(encoding="utf-8")
         )
-        assert config.agent.network_mode.value == "allowlist"
-        expected_hosts = list(
-            dict.fromkeys(
-                host
-                for host in (
-                    "ncbi.nlm.nih.gov",
-                    "ftp.ncbi.nlm.nih.gov",
-                    "pypi.org",
-                    *HARNESS_ALLOWED_DOMAINS,
-                )
-                if host not in REDUNDANT_ALLOWED_DOMAINS
-            )
-        )
-        assert config.agent.allowed_hosts == expected_hosts
-        assert not REDUNDANT_ALLOWED_DOMAINS.intersection(config.agent.allowed_hosts)
+        assert config.agent.network_mode.value == "public"
         assert config.verifier.network_mode.value == "allowlist"
         assert config.verifier.allowed_hosts == ["api.anthropic.com"]
         assert "REWARDKIT_FORCE_OAUTH" not in config.verifier.env
