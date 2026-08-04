@@ -15,6 +15,7 @@ dependencies = [
 [project.scripts]
 biomystery-bench-adapter = "biomistery_bench.main:main"
 compbiobench-adapter = "compbiobench.main:main"
+drug-discovery-bench-adapter = "drug_discovery_bench.main:main"
 epibench-adapter = "epibench.main:main"
 genebench-pro-adapter = "genebench_pro.main:main"
 txbench-pp-adapter = "txbench_pp.main:main"
@@ -30,7 +31,7 @@ dev = [
 ]
 
 [tool.uv.build-backend]
-module-name = ["genebench_pro", "biomistery_bench", "compbiobench", "epibench", "txbench_pp", "shared"]
+module-name = ["genebench_pro", "biomistery_bench", "compbiobench", "drug_discovery_bench", "epibench", "txbench_pp", "shared"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
