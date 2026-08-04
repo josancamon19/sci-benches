@@ -15,7 +15,6 @@ from harbor.environments.base import ExecResult
 from harbor.models.job.config import JobConfig
 
 import shared.agents.bio_research_claude_code as harness
-from biomistery_bench.adapter import HARNESS_ALLOWED_DOMAINS
 from shared.agents.bio_research_claude_code import (
     BIO_RESEARCH_ARTIFACT_PATH,
     BIO_RESEARCH_MCP_HEALTH_ARTIFACT_PATH,
@@ -205,19 +204,25 @@ def test_job_is_valid_and_does_not_reference_vendored_plugin() -> None:
     assert "biomistery_bench.harness" not in job_text
     assert "shared.harness" not in job_text
     assert config.n_attempts == 1
-    assert config.n_concurrent_trials == 4
-    assert len(config.agents) == 2
+    assert config.n_concurrent_trials == 8
+    assert len(config.agents) >= 2
     assert config.agents[0].name == "claude-code"
     assert config.agents[1].import_path == (
         "shared.agents.bio_research_claude_code:BioResearchClaudeCode"
     )
     assert config.agents[0].model_name == config.agents[1].model_name
     assert config.agents[0].env == config.agents[1].env
+    assert config.artifacts[0].source == "/app/final_answer.txt"
+    assert config.artifacts[0].destination == "final_answer.txt"
+    assert config.artifacts[1].source == "/app"
+    assert config.artifacts[1].destination == "workspace"
     assert (
         config.agents[1]
         .kwargs["instruction_prefix"]
         .startswith("Before solving the task, explore the available Bio Research plugin")
     )
     assert "mcp_healthcheck" not in config.agents[1].kwargs
-    assert config.datasets[0].task_names == ["hb002", "hb010"]
-    assert len(set(HARNESS_ALLOWED_DOMAINS) | set(config.agents[1].extra_allowed_hosts)) == 20
+    assert config.datasets[0].path == Path("datasets/epibench")
+    assert config.datasets[0].task_names is None
+    assert not config.agents[0].extra_allowed_hosts
+    assert not config.agents[1].extra_allowed_hosts

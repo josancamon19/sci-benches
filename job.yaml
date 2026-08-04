@@ -1,6 +1,6 @@
 jobs_dir: jobs
 n_attempts: 1
-n_concurrent_trials: 4
+n_concurrent_trials: 8
 timeout_multiplier: 1.0
 retry:
   max_retries: 2
@@ -16,32 +16,35 @@ verifier:
   disable: false
 
 artifacts:
+  - source: /app/final_answer.txt
+    destination: final_answer.txt
   - source: /app
     destination: workspace
     exclude:
       - data_files
+      - data
+      - work
+      - "**/*.bam"
+      - "**/*.bai"
+      - "**/*.cram"
+      - "**/*.sam"
+      - "**/*.fastq"
+      - "**/*.fastq.gz"
+      - "**/*.fq"
+      - "**/*.fq.gz"
+      - "**/*.tar"
+      - "**/*.tar.gz"
+      - "**/*.zip"
 
 agents:
   - name: claude-code
     model_name: anthropic/claude-opus-4-8
-    extra_allowed_hosts:
-      - api.anthropic.com
     env:
       CLAUDE_CODE_OAUTH_TOKEN: "${CLAUDE_CODE_OAUTH_TOKEN}"
       CLAUDE_FORCE_OAUTH: "${CLAUDE_FORCE_OAUTH:-YES}"
 
   - import_path: shared.agents.bio_research_claude_code:BioResearchClaudeCode
     model_name: anthropic/claude-opus-4-8
-    extra_allowed_hosts:
-      - api.anthropic.com
-      - pubmed.mcp.claude.com
-      - mcp.services.biorender.com
-      - hcls.mcp.claude.com
-      - mcp.consensus.app
-      - mcp.synapse.org
-      - connector.scholargateway.ai
-      - mcp.k.owkin.com
-      - mcp.platform.opentargets.org
     kwargs:
       instruction_prefix: >-
         Before solving the task, explore the available Bio Research plugin skills
@@ -51,8 +54,16 @@ agents:
       CLAUDE_CODE_OAUTH_TOKEN: "${CLAUDE_CODE_OAUTH_TOKEN}"
       CLAUDE_FORCE_OAUTH: "${CLAUDE_FORCE_OAUTH:-YES}"
 
+  - name: codex
+    model_name: openai/gpt-5.6-sol
+    env:
+      CODEX_FORCE_AUTH_JSON: "${CODEX_FORCE_AUTH_JSON:-YES}"
+
+  - name: opencode
+    model_name: openai/accounts/fireworks/models/glm-5p2
+    env:
+      OPENAI_API_KEY: "${FIREWORKS_API_KEY}"
+      OPENAI_BASE_URL: https://api.fireworks.ai/inference/v1
+
 datasets:
-  - path: datasets/biomystery-bench
-    task_names:
-      - hb002
-      - hb010
+  - path: datasets/epibench
