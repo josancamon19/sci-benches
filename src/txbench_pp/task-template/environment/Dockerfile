@@ -67,13 +67,14 @@ RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel && \
         requests \
         tqdm \
         pyyaml \
-        latch-eval-tools==0.4.17 \
+        latch-eval-tools==0.4.18 \
         adjustText==1.3.0 \
         gseapy==1.1.11 \
         upsetplot==0.9.0
 
 RUN python -c "import Bio, PIL, anndata, cv2, duckdb, h5py, lifelines, matplotlib, networkx, numpy, pandas, polars, pyarrow, rdkit, scanpy, scipy, seaborn, skimage, sklearn, statsmodels" && \
     python -c "from latch_eval_tools.graders import get_grader; r = get_grader('numeric_tolerance').evaluate_answer({'x': 1}, {'ground_truth': {'x': 1}, 'tolerances': {'x': {'type': 'absolute', 'value': 0}}}); assert r.passed and r.score == 1.0" && \
+    python -c "from latch_eval_tools.graders import get_grader; child = lambda field, value: {'type': 'numeric_tolerance', 'config': {'ground_truth': {field: value}, 'tolerances': {field: {'type': 'absolute', 'value': 0}}}}; config = {'pass_rule': 'all', 'children': [child('x', 1), child('y', 2)]}; result = get_grader('all_of').evaluate_answer({'x': 1, 'y': 0}, config); assert not result.passed and result.score == 0.0" && \
     command -v jq node npm rg
 
 WORKDIR /app

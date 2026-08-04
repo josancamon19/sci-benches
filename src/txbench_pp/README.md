@@ -15,10 +15,10 @@ uv run txbench-pp-adapter --output-dir datasets/txbench-pp
 ```
 
 The verifier uses the eval's published grader configuration with
-`latch-eval-tools==0.4.17`, including nested `all_of`, numeric tolerance,
+`latch-eval-tools==0.4.18`, including fail-closed nested `all_of`, numeric tolerance,
 label-set Jaccard, marker precision/recall, and multiple-choice graders. The
 package is pinned to the public grader source revision
-`5e58bee341c9602f6a7b866a4f4e4701f0339de1`.
+`bd91247ab62352970c720d03ac74ce032f0f50c9`.
 
 Generated tasks run with no solver or verifier network access. Standard Harbor
 Daytona provisions the image, while Docker work volumes at `/app/work`,

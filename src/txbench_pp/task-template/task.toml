@@ -21,7 +21,7 @@ upstream_grader_type = {{ grader_type | tojson }}
 input_file_count = {{ input_file_count }}
 input_size_bytes = {{ input_size_bytes }}
 official_verifier_available = true
-grader_provenance = "latch-eval-tools==0.4.17"
+grader_provenance = "latch-eval-tools==0.4.18"
 
 [agent]
 network_mode = "no-network"

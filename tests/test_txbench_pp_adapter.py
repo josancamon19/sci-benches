@@ -194,7 +194,7 @@ def test_adapter_generates_officially_graded_isolated_tasks(
         assert task_config.environment.memory_mb == 8192
         assert task_config.environment.storage_mb == 10240
         assert task_config.metadata["official_verifier_available"] is True
-        assert task_config.metadata["grader_provenance"] == "latch-eval-tools==0.4.17"
+        assert task_config.metadata["grader_provenance"] == "latch-eval-tools==0.4.18"
 
         instruction = (task_dir / "instruction.md").read_text(encoding="utf-8")
         assert instruction.count("/app/result.json") == 1
@@ -206,7 +206,7 @@ def test_adapter_generates_officially_graded_isolated_tasks(
         dockerfile = (task_dir / "environment" / "Dockerfile").read_text(encoding="utf-8")
         assert dockerfile.startswith("FROM python:3.11-slim-bookworm\n")
         for dependency in (
-            "latch-eval-tools==0.4.17",
+            "latch-eval-tools==0.4.18",
             "numpy",
             "pandas",
             "pyarrow",
@@ -217,6 +217,8 @@ def test_adapter_generates_officially_graded_isolated_tasks(
         ):
             assert dependency in dockerfile
         assert "opencv-python-headless" in dockerfile
+        assert "get_grader('all_of')" in dockerfile
+        assert "not result.passed and result.score == 0.0" in dockerfile
         assert "conda install" not in dockerfile
         assert "COPY data/* /app/data/" in dockerfile
         assert "TMPDIR=/tmp/w" in dockerfile
